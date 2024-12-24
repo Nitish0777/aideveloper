@@ -1,13 +1,14 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
-const mongoURI = process.env.MONGO_URI;
-const connect = () =>{
-    console.log("Connecting to database", mongoURI);
-    mongoose.connect(mongoURI).then(() => {
-        console.log("Connected to database");
-    }).catch((err) => {
-        console.log("Error connecting to database", err);
-    })
+const connectDB = async () => {
+  try {
+    console.log(`MongoDB URI: ${process.env.MONGO_URI}`);
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB connected: ${mongoose.connection.host}`);
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+    process.exit(1);
+  }
 }
 
-export default connect;
+export default connectDB;

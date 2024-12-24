@@ -1,10 +1,10 @@
 import express from "express";
 import morgan from "morgan";
-import connect from "./db/db.js";
+import connectDB from "./db/db.js";
 
 const app = express();
 
-connect();
+connectDB();
 
 app.use(morgan("dev"));
 app.use(express.json());
