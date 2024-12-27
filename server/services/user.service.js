@@ -1,4 +1,4 @@
-import userModel from "../models/user.model";
+import userModel from "../models/user.model.js";
 
 export const createUser = async (email,password) => {
     if(!email || !password){
@@ -10,7 +10,7 @@ export const createUser = async (email,password) => {
         throw new Error("Email already exists");
     }
 
-    const hashedPassword = await userModel.hashedPassword(password);
+    const hashedPassword = await userModel.hashPassword(password);
 
     const user = await userModel.create({
         email,
