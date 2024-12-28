@@ -9,7 +9,14 @@ export const createProject = async ({ name, userId }) => {
       throw new Error("User is required");
     }
 
-    const project = await projectModel.create({ name, users: [userId] });
+    try {
+      const project = await projectModel.create({ name, users: [userId] });
+    } catch (error) {
+      if (error.code === 11000) {
+        throw new Error("Project name already exists");
+      }
+      throw new Error("Internal server error");
+    }
     return project;
   } catch (error) {
     console.error(`Error in Creating Projects `, error);
