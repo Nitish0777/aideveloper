@@ -24,3 +24,16 @@ export const createProject = async ({ name, userId }) => {
     throw new Error("Internal server error");
   }
 };
+
+export const getAllProjectsByUserId = async ({userId}) => {
+  try {
+    if (!userId) {
+      throw new Error("User is required");
+    }
+    const projects = await projectModel.find({ users: userId });
+    return projects;
+  } catch (error) {
+    console.error(`Error in Getting All Projects `, error);
+    throw new Error("Internal server error");
+  }
+};
