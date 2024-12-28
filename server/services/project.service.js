@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import projectModel from "../models/project.model.js";
 
 export const createProject = async ({ name, userId }) => {
@@ -25,7 +26,7 @@ export const createProject = async ({ name, userId }) => {
   }
 };
 
-export const getAllProjectsByUserId = async ({userId}) => {
+export const getAllProjectsByUserId = async ({ userId }) => {
   try {
     if (!userId) {
       throw new Error("User is required");
@@ -34,6 +35,53 @@ export const getAllProjectsByUserId = async ({userId}) => {
     return projects;
   } catch (error) {
     console.error(`Error in Getting All Projects `, error);
+    throw new Error("Internal server error");
+  }
+};
+
+export const addUsersToProject = async ({ projectId, users, userId }) => {
+  try {
+    if (!projectId) {
+      throw new Error("Project ID is required");
+    }
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      throw new Error("Invalid ProjectId");
+    }
+    if (!users) {
+      throw new Error("Users are required");
+    }
+    if (
+      !Array.isArray(users) ||
+      users.some((userId) => !mongoose.Types.ObjectId.isValid(userId))
+    ) {
+      throw new Error("Invalid userId(s) in users array");
+    }
+    const project = await projectModel.findOne({
+      _id: projectId,
+      users: userId,
+    });
+    if (!project) {
+      throw new Error("User is not belong to this project");
+    }
+    const updatedProject = await projectModel.findByIdAndUpdate(
+      {
+        _id: projectId,
+      },
+      {
+        $addToSet: {
+          users: {
+            $each: users,
+          },
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    return updatedProject;
+  } catch (error) {
+    console.error(`Error in Adding User to Project `, error);
     throw new Error("Internal server error");
   }
 };
