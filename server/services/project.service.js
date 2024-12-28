@@ -11,6 +11,7 @@ export const createProject = async ({ name, userId }) => {
 
     try {
       const project = await projectModel.create({ name, users: [userId] });
+      return project;
     } catch (error) {
       if (error.code === 11000) {
         throw new Error("Project name already exists");
