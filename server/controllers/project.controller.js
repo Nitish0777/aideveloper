@@ -11,10 +11,8 @@ export const createProjects = async (req, res) => {
         }
         const {name} = req.body;
         const userEmail = req.user.email;
-        console.log(userEmail);
         const user = await User.findOne({email: userEmail});
         const userId = user._id;
-        console.log(userId);
         const newProject = await createProject({name, userId});
 
         return res.status(201).json(newProject);
