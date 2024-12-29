@@ -19,3 +19,15 @@ export const createUser = async (email,password) => {
 
     return user;
 }
+
+export const getAllUsers = async ({userId}) => {
+    try {
+        const users = await userModel.find({
+            _id:{$ne:userId}
+        });
+        return users;
+    } catch (error) {
+        console.error(`Error in Getting All Users `, error);
+        throw new Error("Internal server error");
+    }
+};
