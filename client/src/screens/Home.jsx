@@ -1,17 +1,19 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { UserContext } from "../context/user.context";
 import axios from "../config/axios";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const { user } = useContext(UserContext);
   const [isModelOpen, setIsModelOpen] = useState(false);
   const [projectName, setProjectName] = useState("");
+  const [projects, setProjects] = useState([]);
+
+  const navigate = useNavigate();
 
   const createProject = (e) => {
     e.preventDefault();
-    // console.log("Project Created");
-    // console.log(projectName);
-     axios
+    axios
       .post("/projects/create", { name: projectName })
       .then((response) => {
         console.log(response.data);
@@ -21,12 +23,25 @@ const Home = () => {
       .catch((error) => {
         console.log(error);
       });
-  }
+  };
+
+  useEffect(() => {
+    axios
+      .get("/projects/all")
+      .then((response) => {
+        setProjects(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+  console.log("proje", projects);
 
   return (
     <>
       <main className="p-4">
-        <div className="projects">
+        <div className="projects flex flex-wrap gap-4">
           <button
             className="project p-4 border border-slate-300 rounded-md"
             onClick={() => setIsModelOpen(true)}
@@ -34,6 +49,24 @@ const Home = () => {
             New Project
             <i className="ri-link ml-2"></i>
           </button>
+          {projects?.map((project) => (
+            <div
+              onClick={() => navigate(`/project`,{
+                state: { project }
+              })}
+              key={project._id}
+              className="project p-4 border border-slate-300 rounded-md mt-4 cursor-pointer flex flex-col min-w-52 hover:bg-slate-200"
+            >
+              <h3 className="font-semibold">{project.name}</h3>
+              <div className="flex gap-4 mt-2">
+                <p>
+                  <i class="ri-user-line"></i>
+                  <small>Collaborators: </small>
+                </p>
+                {project.users?.length || 0}
+              </div>
+            </div>
+          ))}
         </div>
 
         {isModelOpen && (
