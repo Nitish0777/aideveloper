@@ -4,12 +4,13 @@ import { useLocation } from "react-router-dom";
 
 const Project = () => {
   const location = useLocation();
-  const project = location.state?.project;
+  // const project = location.state?.project;
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
+  const [project, setProject] = useState(location.state.project);
 
   function addCollaborator () {
     console.log("dadata",location.state.project)
@@ -27,6 +28,17 @@ const Project = () => {
   };
 
   useEffect(() => {
+    axios
+      .get(`/projects/get-project/${location.state.project._id}`)
+      .then((res) => {
+        console.log(res.data);
+        setProject(res.data.project);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+
+
     axios
       .get("/users/all")
       .then((res) => {
@@ -95,25 +107,24 @@ const Project = () => {
             isSidePanelOpen ? "translate-x-0" : "-translate-x-full"
           } top-0 overflow-y-auto`}
         >
-          <header className="flex justify-end p-2 px-5 py-4 bg-slate-200">
+          <header className="flex justify-between p-2 px-5 py-4 bg-slate-200">
+            <h2 className="text-xl font-bold">Collaborators</h2>
             <button onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}>
               <i className="ri-close-fill font-bold"></i>
             </button>
           </header>
 
           <div className="users flex flex-col gap-2 p-2">
-            {users.map((user) => (
+            {project?.users?.map((user) => (
               <div
                 key={user._id}
-                className="user flex gap-2 items-center cursor-pointer hover:bg-slate-200 p-2 text-blue-500"
-                onClick={() => handleUserClick(user._id)}
+                className="user flex items-center gap-2 p-2 rounded-md"
               >
-                <div className="aspect-square rounded-full w-fit h-fit p-4 flex bg-slate-600 text-white items-center justify-center">
-                  <i className="ri-user-fill absolute"></i>
-                </div>
-                <h1 className="font-semibold text-lg text-cyan-800 ">{user.email}</h1>
+                <i className="ri-user-fill text-xl"></i>
+                <p>{user.email}</p>
               </div>
-            ))}
+            ))  
+            }
           </div>
         </div>
       </section>
