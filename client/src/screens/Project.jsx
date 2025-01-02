@@ -1,48 +1,60 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "../config/axios";
 import { useLocation } from "react-router-dom";
 
 const Project = () => {
   const location = useLocation();
-  const project = location?.state?.project;
+  const project = location.state?.project;
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
-  const users = [
-    { id: "1", name: "User One" },
-    { id: "2", name: "User Two" },
-    { id: "3", name: "User Three" },
-    { id: "4", name: "User Four" },
-    { id: "5", name: "User Five" }, 
+  const [users, setUsers] = useState([]);
 
-    { id: "6", name: "User Six" },
-    { id: "7", name: "User Seven" },
-    { id: "8", name: "User Eight" },
-    { id: "9", name: "User Nine" },
-    { id: "10", name: "User Ten" },
+  function addCollaborator () {
+    console.log("dadata",location.state.project)
+    axios
+      .put("/projects/add-user", {
+        projectId: location.state.project._id,
+        users: Array.from(selectedUserId),
+      })
+      .then((res) => {
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
 
-    { id: "11", name: "User Eleven" },
-    { id: "12", name: "User Twelve" },
-    { id: "13", name: "User Thirteen" },
-    { id: "14", name: "User Fourteen" },
-    { id: "15", name: "User Fifteen" },
-  ];
+  useEffect(() => {
+    axios
+      .get("/users/all")
+      .then((res) => {
+        console.log(res.data);
+        setUsers(res.data.users);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, []);
 
   const handleUserClick = (userId) => {
     console.log(userId);
     if (selectedUserId.includes(userId)) {
-      setSelectedUserId(selectedUserId.filter(id => id !== userId));
+      setSelectedUserId(selectedUserId.filter((id) => id !== userId));
     } else {
       setSelectedUserId([...selectedUserId, userId]);
     }
-    selectedUserId.map((id) => console.log(id));
   };
 
   return (
     <main className="h-screen flex w-screen">
       <section className="left relative flex flex-col h-full min-w-96 bg-slate-300">
         <header className="flex justify-between p-2 px-4 w-full bg-white">
-          <button className="flex gap-2 items-center p-2" onClick={() => setIsModalOpen(true)}>
+          <button
+            className="flex gap-2 items-center p-2"
+            onClick={() => setIsModalOpen(true)}
+          >
             <i className="ri-add-large-fill mr-1"></i>
             <p>Add Collaborator</p>
           </button>
@@ -92,14 +104,14 @@ const Project = () => {
           <div className="users flex flex-col gap-2 p-2">
             {users.map((user) => (
               <div
-                key={user.id}
-                className="user flex gap-2 items-center cursor-pointer hover:bg-slate-200 p-2"
-                onClick={() => handleUserClick(user.id)}
+                key={user._id}
+                className="user flex gap-2 items-center cursor-pointer hover:bg-slate-200 p-2 text-blue-500"
+                onClick={() => handleUserClick(user._id)}
               >
                 <div className="aspect-square rounded-full w-fit h-fit p-4 flex bg-slate-600 text-white items-center justify-center">
                   <i className="ri-user-fill absolute"></i>
                 </div>
-                <h1 className="font-semibold text-lg">{user.name}</h1>
+                <h1 className="font-semibold text-lg text-cyan-800 ">{user.email}</h1>
               </div>
             ))}
           </div>
@@ -117,22 +129,24 @@ const Project = () => {
             </button>
             <h2 className="text-2xl font-bold mb-4">Select a User</h2>
             <ul className="flex flex-col gap-2 max-h-96 overflow-y-auto">
-              {users.map((user) => (
+              {users?.map((user) => (
                 <li
-                  key={user.id}
-                  className={`p-2 rounded cursor-pointer hover:bg-slate-200 ${selectedUserId.includes(user.id) ? "bg-slate-200" : ""}
+                  key={user._id}
+                  className={`p-2 rounded cursor-pointer hover:bg-slate-200 ${
+                    selectedUserId.includes(user._id) ? "bg-slate-200" : ""
+                  }
                      flex items-center gap-2`}
-                  onClick={() => handleUserClick(user.id)}
+                  onClick={() => handleUserClick(user._id)}
                 >
                   <i className="ri-user-fill text-xl"></i>
-                  {user.name}
+                  {user.email}
                 </li>
               ))}
             </ul>
             <button
               className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
               onClick={() => {
-                // Logic to add collaborator
+                addCollaborator();
                 console.log(`User ${selectedUserId} added as collaborator`);
                 setIsModalOpen(false);
               }}
