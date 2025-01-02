@@ -3,15 +3,46 @@ import { useLocation } from "react-router-dom";
 
 const Project = () => {
   const location = useLocation();
-  const project = location.state.project;
+  const project = location?.state?.project;
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
-  //   console.log("project", project);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState([]);
+  const users = [
+    { id: "1", name: "User One" },
+    { id: "2", name: "User Two" },
+    { id: "3", name: "User Three" },
+    { id: "4", name: "User Four" },
+    { id: "5", name: "User Five" }, 
+
+    { id: "6", name: "User Six" },
+    { id: "7", name: "User Seven" },
+    { id: "8", name: "User Eight" },
+    { id: "9", name: "User Nine" },
+    { id: "10", name: "User Ten" },
+
+    { id: "11", name: "User Eleven" },
+    { id: "12", name: "User Twelve" },
+    { id: "13", name: "User Thirteen" },
+    { id: "14", name: "User Fourteen" },
+    { id: "15", name: "User Fifteen" },
+  ];
+
+  const handleUserClick = (userId) => {
+    console.log(userId);
+    if (selectedUserId.includes(userId)) {
+      setSelectedUserId(selectedUserId.filter(id => id !== userId));
+    } else {
+      setSelectedUserId([...selectedUserId, userId]);
+    }
+    selectedUserId.map((id) => console.log(id));
+  };
+
   return (
     <main className="h-screen flex w-screen">
       <section className="left relative flex flex-col h-full min-w-96 bg-slate-300">
         <header className="flex justify-between p-2 px-4 w-full bg-white">
-          <button className="flex gap-2 items-center p-2">
+          <button className="flex gap-2 items-center p-2" onClick={() => setIsModalOpen(true)}>
             <i className="ri-add-large-fill mr-1"></i>
             <p>Add Collaborator</p>
           </button>
@@ -22,7 +53,7 @@ const Project = () => {
             <i className="ri-group-fill"></i>
           </button>
         </header>
-        <div className="conversation-area flex-grow flex flex-col gap-1">
+        <div className="conversation-area flex-grow flex flex-col gap-1 overflow-y-auto">
           <div className="message-box p-1 flex-grow flex flex-col">
             <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit mt-2 rounded-md">
               <small className="opacity-65 text-xs">example@gmail.com </small>
@@ -50,7 +81,7 @@ const Project = () => {
         <div
           className={`sidePanel w-full h-full flex flex-col gap-2 bg-slate-50 absolute transition-all  ${
             isSidePanelOpen ? "translate-x-0" : "-translate-x-full"
-          } top-0`}
+          } top-0 overflow-y-auto`}
         >
           <header className="flex justify-end p-2 px-5 py-4 bg-slate-200">
             <button onClick={() => setIsSidePanelOpen(!isSidePanelOpen)}>
@@ -59,20 +90,58 @@ const Project = () => {
           </header>
 
           <div className="users flex flex-col gap-2 p-2">
-            <div className="user flex gap-2 items-center cursor-pointer hover:bg-slate-200 p-2">
-              <div className="aspect-square rounded-full w-fit h-fit p-4 flex bg-slate-600 text-white items-center justify-center">
-                <i className="ri-user-fill absolute"></i>
+            {users.map((user) => (
+              <div
+                key={user.id}
+                className="user flex gap-2 items-center cursor-pointer hover:bg-slate-200 p-2"
+                onClick={() => handleUserClick(user.id)}
+              >
+                <div className="aspect-square rounded-full w-fit h-fit p-4 flex bg-slate-600 text-white items-center justify-center">
+                  <i className="ri-user-fill absolute"></i>
+                </div>
+                <h1 className="font-semibold text-lg">{user.name}</h1>
               </div>
-              <h1 className="font-semibold text-lg">User Name</h1>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-
-          
-
-
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+            <button
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-800"
+              onClick={() => setIsModalOpen(false)}
+            >
+              <i className="ri-close-fill text-2xl"></i>
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Select a User</h2>
+            <ul className="flex flex-col gap-2 max-h-96 overflow-y-auto">
+              {users.map((user) => (
+                <li
+                  key={user.id}
+                  className={`p-2 rounded cursor-pointer hover:bg-slate-200 ${selectedUserId.includes(user.id) ? "bg-slate-200" : ""}
+                     flex items-center gap-2`}
+                  onClick={() => handleUserClick(user.id)}
+                >
+                  <i className="ri-user-fill text-xl"></i>
+                  {user.name}
+                </li>
+              ))}
+            </ul>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              onClick={() => {
+                // Logic to add collaborator
+                console.log(`User ${selectedUserId} added as collaborator`);
+                setIsModalOpen(false);
+              }}
+            >
+              Add Collaborator
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
