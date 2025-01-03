@@ -95,7 +95,6 @@ export const getUsersByProjectId = async ({ projectId }) => {
   }
   try {
     const project = await projectModel.findOne({ _id: projectId }).populate('users');
-    console.log(project);
     return project;
   } catch (error) {
     console.error(`Error in Getting Users by ProjectId `, error);

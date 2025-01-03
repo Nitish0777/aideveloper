@@ -26,7 +26,6 @@ userSchema.statics.hashPassword = async function(password){
 }
 
 userSchema.methods.isValidPassword = async function(password){
-    console.log(password,this.password);
     return await bcrypt.compare(password,this.password);
 }
 
