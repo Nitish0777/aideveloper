@@ -1,20 +1,24 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "../config/axios";
 import { useLocation } from "react-router-dom";
-import { intializeSocket,receiveMessage,sendMessage } from "../config/socket";
+import { intializeSocket, receiveMessage, sendMessage } from "../config/socket";
+import { UserContext } from "../context/user.context";
 
 const Project = () => {
   const location = useLocation();
   // const project = location.state?.project;
+
+  const {user} = useContext(UserContext);
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState([]);
   const [users, setUsers] = useState([]);
   const [project, setProject] = useState(location.state.project);
+  const [message, setMessage] = useState("");
 
-  function addCollaborator () {
-    console.log("dadata",location.state.project)
+  function addCollaborator() {
+    console.log("dadata", location.state.project);
     axios
       .put("/projects/add-user", {
         projectId: location.state.project._id,
@@ -26,10 +30,14 @@ const Project = () => {
       .catch((err) => {
         console.log(err);
       });
-  };
+  }
 
   useEffect(() => {
-    intializeSocket();
+    intializeSocket(project._id);
+
+    receiveMessage("project-message", (data) => {
+      console.log(data);
+    });
 
     axios
       .get(`/projects/get-project/${location.state.project._id}`)
@@ -40,7 +48,6 @@ const Project = () => {
       .catch((err) => {
         console.log(err);
       });
-
 
     axios
       .get("/users/all")
@@ -60,6 +67,15 @@ const Project = () => {
     } else {
       setSelectedUserId([...selectedUserId, userId]);
     }
+  };
+
+  const sendMessages = () => {
+    console.log("message", user);
+    sendMessage("project-message", {
+      message,
+      sender: user._id,
+    });
+    setMessage("");
   };
 
   return (
@@ -96,10 +112,16 @@ const Project = () => {
             <input
               className="p-2 px-4 border-none outline-none flex-grow"
               type="text"
+              value={message}
               placeholder="Type a message"
+              onChange={(e) => setMessage(e.target.value)}
               required
             />
-            <button className="px-5 bg-slate-950 text-white">
+            <button
+              className="px-5 bg-slate-950 text-white"
+              type="submit"
+              onClick={sendMessages}
+            >
               <i className="ri-send-plane-fill"></i>
             </button>
           </div>
@@ -126,8 +148,7 @@ const Project = () => {
                 <i className="ri-user-fill text-xl"></i>
                 <p>{user.email}</p>
               </div>
-            ))  
-            }
+            ))}
           </div>
         </div>
       </section>
