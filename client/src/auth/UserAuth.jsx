@@ -1,25 +1,28 @@
-import React, { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/user.context";
 import { useNavigate } from "react-router-dom";
 
 const UserAuth = ({ children }) => {
   const { user } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem("token");
 
   const navigate = useNavigate();
 
-  if(user){
-    setLoading(false);
-  }
+  useEffect(() => {
+    console.log("ggg", user);
+    if (user) {
+      setLoading(false);
+    }
+    if (!token || !user) {
+      navigate("/login");
+    }
+  }, []);
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
-  useEffect(() => {
-    if (!user) {
-        navigate("/login");
-    }
-  }, [user]);
   return <>{children}</>;
 };
 
