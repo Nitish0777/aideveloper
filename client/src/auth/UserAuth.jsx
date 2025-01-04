@@ -2,6 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/user.context";
 import { useNavigate } from "react-router-dom";
 
+import PropTypes from "prop-types";
+
 const UserAuth = ({ children }) => {
   const { user } = useContext(UserContext);
   const [loading, setLoading] = useState(true);
@@ -24,6 +26,10 @@ const UserAuth = ({ children }) => {
   }
 
   return <>{children}</>;
+};
+// extra
+UserAuth.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default UserAuth;
