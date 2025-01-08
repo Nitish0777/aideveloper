@@ -4,11 +4,13 @@ import { useLocation } from "react-router-dom";
 import { intializeSocket, receiveMessage, sendMessage } from "../config/socket";
 import { UserContext } from "../context/user.context";
 
+
+// 04:56:49
 const Project = () => {
   const location = useLocation();
   // const project = location.state?.project;
 
-  const {user} = useContext(UserContext);
+  const { user } = useContext(UserContext);
 
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,6 +18,7 @@ const Project = () => {
   const [users, setUsers] = useState([]);
   const [project, setProject] = useState(location.state.project);
   const [message, setMessage] = useState("");
+  const messageBox = React.createRef();
 
   function addCollaborator() {
     console.log("dadata", location.state.project);
@@ -37,6 +40,8 @@ const Project = () => {
 
     receiveMessage("project-message", (data) => {
       console.log(data);
+      console.log("message", data.message);
+      appendIncomingMessage(data);
     });
 
     axios
@@ -73,10 +78,43 @@ const Project = () => {
     console.log("message", user);
     sendMessage("project-message", {
       message,
-      sender: user._id,
+      sender: user,
+    });
+    outgoingMessage({
+      message,
+      sender: user,
     });
     setMessage("");
   };
+
+  function appendIncomingMessage(message) {
+    console.log("message", message);
+    const messageBox = document.querySelector(".message-box");
+    const newMessage = document.createElement("div");
+    newMessage.className =
+      "message max-w-56 flex flex-col p-2 bg-slate-50 w-fit mt-2 rounded-md";
+    newMessage.innerHTML = `
+      <small class="opacity-65 text-xs">
+        ${message.sender.email}
+      </small> 
+      <p class="text-sm">${message.message}</p>
+    `;
+    messageBox.appendChild(newMessage);
+  }
+
+  function outgoingMessage(message) {
+    const messageBox = document.querySelector(".message-box");
+    const newMessage = document.createElement("div");
+    newMessage.className =
+      "ml-auto message max-w-56 flex flex-col p-2 mt-2 bg-slate-50 w-fit rounded-md";
+    newMessage.innerHTML = `
+      <small class="opacity-65 text-xs">
+        ${message.sender.email}
+      </small> 
+      <p class="text-sm">${message.message}</p>
+    `;
+    messageBox.appendChild(newMessage);
+  }
 
   return (
     <main className="h-screen flex w-screen">
@@ -97,17 +135,10 @@ const Project = () => {
           </button>
         </header>
         <div className="conversation-area flex-grow flex flex-col gap-1 overflow-y-auto">
-          <div className="message-box p-1 flex-grow flex flex-col">
-            <div className="message max-w-56 flex flex-col p-2 bg-slate-50 w-fit mt-2 rounded-md">
-              <small className="opacity-65 text-xs">example@gmail.com </small>
-              <p className="text-sm">Lorem ipsum dolor sit.</p>
-            </div>
-
-            <div className="ml-auto message max-w-56 flex flex-col p-2 mt-2 bg-slate-50 w-fit rounded-md">
-              <small className="opacity-65 text-xs">example@gmail.com </small>
-              <p className="text-sm">Lorem ipsum dolor sit.</p>
-            </div>
-          </div>
+          <div
+            ref={messageBox}
+            className="message-box p-1 flex-grow flex flex-col"
+          ></div>
           <div className="inputField w-full flex">
             <input
               className="p-2 px-4 border-none outline-none flex-grow"

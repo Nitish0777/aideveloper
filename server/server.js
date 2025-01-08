@@ -42,13 +42,14 @@ io.use(async (socket, next) => {
 });
 
 io.on("connection", (socket) => {
-    console.log("a user connected");
-
-  socket.join(socket.project._id);
+  console.log("a user connected");
+  // const projectId = socket.project._id.toString();
+  socket.roomId = socket.project._id.toString();
+  socket.join(socket.roomId);
 
   socket.on("project-message", (data) => {
     console.log(data);
-    socket.broadcast.to(socket.project._id).emit("project-message",data);
+    socket.broadcast.to(socket.roomId).emit("project-message",data);
   }); 
 
   socket.on("event", (data) => {
